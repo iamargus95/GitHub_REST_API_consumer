@@ -219,7 +219,8 @@ func FileUserData(data Userinfo) []string {
 	var stringToPrint []string
 	if data.Name != "" {
 		stringToPrint = []string{"Name: " + data.Name + "\n\nUsername: " + data.Login + "\n\nBio: " + data.Bio +
-			"\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + "\n\nFollowers: " + strconv.Itoa(data.Followers) + "\n\nFollowing: " + strconv.Itoa(data.Following)}
+			"\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + "\n\nFollowers: " + strconv.Itoa(data.Followers) +
+			"\n\nFollowing: " + strconv.Itoa(data.Following)}
 	}
 
 	return stringToPrint
