@@ -13,8 +13,8 @@ func main() {
 	reposDetails := githubapi.ReposData(username)
 	userdata := githubapi.FileUserData(userDetails)
 	repodata := githubapi.FileRepoData(userDetails, reposDetails)
-	io.WriteUserDataToFile(username, userdata)
-	io.WriteUserDataToFile(username, repodata)
+	io.WriteToFile(username, userdata)
+	io.WriteToFile(username, repodata)
 }
 
 func getUsername() string {
