@@ -10,7 +10,6 @@ import (
 
 type Userinfo struct {
 	Login        string
-	Url          string
 	Html_url     string
 	Name         string
 	Email        string
@@ -102,7 +101,7 @@ func UserData(data Userinfo) string {
 
 	if data.Name != "" {
 		stringToPrint = "Name: " + data.Name + ",\nUsername: " + data.Login + ",\nE-mail: " + data.Email + ",\nBio: " + data.Bio +
-			",\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
+			",Public Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
 			",\nFollowing: " + strconv.Itoa(data.Following)
 	}
 	return stringToPrint
