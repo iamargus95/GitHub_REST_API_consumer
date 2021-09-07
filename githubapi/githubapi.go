@@ -21,25 +21,26 @@ type Userinfo struct {
 }
 
 type ReposInfoJson struct {
-	Name     string
-	Html_url string
+	Name             string
+	Html_url         string
+	Stargazers_count int
 }
 
 type ReposInfoArray []ReposInfoJson
 
 func responseToUserData(data []byte) Userinfo {
-	var searchResult Userinfo
-	_ = json.Unmarshal(data, &searchResult)
-	return searchResult
+	var userData Userinfo
+	_ = json.Unmarshal(data, &userData)
+	return userData
 }
 
 func responseToRepoData(data []byte) ReposInfoArray {
-	var reposArray ReposInfoArray
-	_ = json.Unmarshal(data, &reposArray)
-	return reposArray
+	var reposDataArray ReposInfoArray
+	_ = json.Unmarshal(data, &reposDataArray)
+	return reposDataArray
 }
 
-func UserData(username string) Userinfo {
+func GetUserData(username string) Userinfo {
 
 	url := "https://api.github.com/users/" + username
 
@@ -64,57 +65,58 @@ func UserData(username string) Userinfo {
 	return searchResult
 }
 
-func ReposData(username string) ReposInfoArray {
+func GetReposData(username string, noOfRepos int) ReposInfoArray {
 
-	url := "http://api.github.com/users/" + username + "/repos?per_page=100"
+	var bodyJson []byte
+	var result ReposInfoArray
 
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
+	for i := 1; i <= ((noOfRepos / 100) + 1); i++ {
 
-	if err != nil {
-		log.Fatal(err)
+		url := "http://api.github.com/users/" + username + "/repos?type=public&per_page=100&page=" + strconv.Itoa(i)
+		client := &http.Client{}
+		req, err := http.NewRequest("GET", url, nil)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		res, err := client.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer res.Body.Close()
+
+		bodyJson, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		searchResult := responseToRepoData(bodyJson)
+		result = append(result, searchResult...)
 	}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
 
-	bodyJson, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	searchResult := responseToRepoData(bodyJson)
-
-	return searchResult
+	return result
 }
 
-func FileUserData(data Userinfo) []string {
-	var stringToPrint []string
-	if data.Name != "" {
-		stringToPrint = []string{"Name: " + data.Name + "\n\nUsername: " + data.Login + "\n\nE-mail: " + data.Email + "\n\nBio: " + data.Bio +
-			"\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + "\n\nFollowers: " + strconv.Itoa(data.Followers) +
-			"\n\nFollowing: " + strconv.Itoa(data.Following)}
-	}
+func UserData(data Userinfo) string {
 
+	var stringToPrint string
+
+	if data.Name != "" {
+		stringToPrint = "Name: " + data.Name + ",\nUsername: " + data.Login + ",\nE-mail: " + data.Email + ",\nBio: " + data.Bio +
+			",\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
+			",\nFollowing: " + strconv.Itoa(data.Following)
+	}
 	return stringToPrint
 }
 
-func FileRepoData(user Userinfo, data ReposInfoArray) []string {
+func RepoData(data ReposInfoArray) []string {
 
 	var stringToPrint []string
-	var loopCondition int
 
-	if user.Public_repos >= 100 {
-		loopCondition = 100
-	} else {
-		loopCondition = user.Public_repos
-	}
+	for i := 0; i < len(data); i++ {
 
-	for i := 0; i < loopCondition; i++ {
-
-		stringToPrint = append(stringToPrint, "\nRepository No["+strconv.Itoa(i+1)+"]:"+data[i].Name+". \nAvailable at:"+data[i].Html_url)
+		stars := data[i].Stargazers_count
+		stringToPrint = append(stringToPrint, "\nRepository No["+strconv.Itoa(i+1)+"]:"+data[i].Name+
+			".\nAvailable at :"+data[i].Html_url+".\nStars Count :"+strconv.Itoa(stars))
 	}
 
 	return stringToPrint
