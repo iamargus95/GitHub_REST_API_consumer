@@ -49,7 +49,22 @@ func TestResponseToUserData(t *testing.T) {
 	}
 }
 
-func TestResponseToRepoData(t *testing.T) {
+func TestGetUserData(t *testing.T) {
+
+	var nil string
+
+	want := Userinfo{"Ocktokit", "https://github.com/Ocktokit", nil, nil, nil, 0, 0, 0}
+
+	var username string = "ocktokit"
+	data := GetUserData(username)
+
+	if !reflect.DeepEqual(data, want) {
+		t.Fatal("JSON Unmarshal failed.")
+	}
+}
+
+func TestResponseToRepoData(t *testing.T) { // Test needs fixing.
+
 	data := []byte(`[
 	{
 		"name": "GitHub_REST_API_consumer",
@@ -71,15 +86,14 @@ func TestResponseToRepoData(t *testing.T) {
 	jsonResponse := responseToRepoData(data)
 
 	want := ReposInfoArray{
-		
-		[]ReposInfoJson{
+		[
 			{"GitHub_REST_API_consumer", "https://github.com/iamargus95/GitHub_REST_API_consumer", 0},
 			{"go-grep", "https://github.com/iamargus95/go-grep", 0},
-			{"iamargus95", "https://github.com/iamargus95/iamargus95", 0},
-		}
-	} //Fix this test 
+			{"iamargus95", "https://github.com/iamargus95/iamargus95", 0}
+		]
+	}
 
 	if !reflect.DeepEqual(jsonResponse, want) {
 		t.Fatal("JSON Unmarshal failed.")
 	}
-}
+} // Test needs fixing.
