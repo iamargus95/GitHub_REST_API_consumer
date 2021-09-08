@@ -382,9 +382,9 @@ func TestUserData(t *testing.T) {
 
 	want := "Name: Ocktokit,\nUsername: Ocktokit,\nE-mail: one2n.in,\nBio: Consulting,\nPublic Repositories: 0,\nFollowers: 0,\nFollowing: 0"
 
-	actual := UserData(data)
+	actual := data.UserData()
 
-	if !reflect.DeepEqual(actual, want) {
+	if actual != want {
 		t.Fatal("JSON Unmarshal failed.")
 	}
 }
