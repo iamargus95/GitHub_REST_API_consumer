@@ -101,7 +101,7 @@ func UserData(data Userinfo) string {
 
 	if data.Name != "" {
 		stringToPrint = "Name: " + data.Name + ",\nUsername: " + data.Login + ",\nE-mail: " + data.Email + ",\nBio: " + data.Bio +
-			",Public Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
+			",\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
 			",\nFollowing: " + strconv.Itoa(data.Following)
 	}
 	return stringToPrint
