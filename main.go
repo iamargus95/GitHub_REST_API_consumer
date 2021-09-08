@@ -1,18 +1,16 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"flag"
 	"iamargus95/fetchGithubData/githubapi"
 	"iamargus95/fetchGithubData/io"
-	"os"
 	"strings"
 	"sync"
 )
 
 func main() {
-
-	usernames := getUsername()
+	flag.Parse()
+	usernames := flag.Args()
 
 	var wg sync.WaitGroup
 	dataToFile := make(chan []string)
@@ -24,15 +22,6 @@ func main() {
 	}
 
 	wg.Wait()
-}
-
-func getUsername() []string {
-	fmt.Println("\nEnter the desired GitHub usernames separated by a space and press enter : ")
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSuffix(input, "\n")
-	argString := strings.Split(input, " ")
-	return argString
 }
 
 func worker(username string, dataToFile chan []string, wg *sync.WaitGroup) {
