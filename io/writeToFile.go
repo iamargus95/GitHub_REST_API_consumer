@@ -6,7 +6,9 @@ import (
 	"os"
 )
 
-func WriteToFile(username string, data []string) error {
+func WriteToFile(username string, dataToFile chan []string) error {
+
+	data := <-dataToFile
 
 	file, err := os.OpenFile(username+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
