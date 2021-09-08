@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"iamargus95/githubassignment/githubapi"
-	"iamargus95/githubassignment/io"
+	"iamargus95/fetchGithubData/githubapi"
+	"iamargus95/fetchGithubData/io"
 	"os"
 	"strings"
 	"sync"
@@ -44,5 +44,4 @@ func worker(username string, dataToFile chan []string, wg *sync.WaitGroup) {
 	repodata := reposDetails.RepoData()
 	accountData := append(userdata, repodata...)
 	dataToFile <- accountData
-
 }
