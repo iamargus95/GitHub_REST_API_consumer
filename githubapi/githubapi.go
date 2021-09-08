@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+const UrlGetRequest = "https://api.github.com/users/"
+
 type Userinfo struct {
 	Login        string
 	Html_url     string
@@ -41,7 +43,7 @@ func responseToRepoData(data []byte) ReposInfoArray {
 
 func GetUserData(username string) Userinfo {
 
-	url := "https://api.github.com/users/" + username
+	url := UrlGetRequest + username
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -71,7 +73,7 @@ func GetReposData(username string, noOfRepos int) ReposInfoArray {
 
 	for i := 1; i <= ((noOfRepos / 100) + 1); i++ {
 
-		url := "http://api.github.com/users/" + username + "/repos?type=public&per_page=100&page=" + strconv.Itoa(i)
+		url := UrlGetRequest + username + "/repos?type=public&per_page=100&page=" + strconv.Itoa(i)
 		client := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
 
@@ -95,7 +97,7 @@ func GetReposData(username string, noOfRepos int) ReposInfoArray {
 	return result
 }
 
-func UserData(data Userinfo) string {
+func (data *Userinfo) UserData() string {
 
 	var stringToPrint string
 
@@ -107,7 +109,7 @@ func UserData(data Userinfo) string {
 	return stringToPrint
 }
 
-func RepoData(data ReposInfoArray) []string {
+func (data ReposInfoArray) RepoData() []string {
 
 	var stringToPrint []string
 
