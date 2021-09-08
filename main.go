@@ -27,7 +27,7 @@ func main() {
 }
 
 func getUsername() []string {
-	fmt.Println("Enter the desired GitHub usernames separated by a space and press enter : ")
+	fmt.Println("\nEnter the desired GitHub usernames separated by a space and press enter : ")
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimSuffix(input, "\n")
