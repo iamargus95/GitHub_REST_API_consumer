@@ -5,10 +5,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
-const UrlGetRequest = "https://api.github.com/users/"
+const (
+	SCHEME = "https"
+	HOST   = "api.github.com"
+	PATH1  = "users/"
+	PATH2  = "/repos"
+	QUERY  = "type=public&per_page=100&page="
+)
 
 type Userinfo struct {
 	Login        string
@@ -43,10 +50,14 @@ func responseToRepoData(data []byte) ReposInfoArray {
 
 func GetUserData(username string) Userinfo {
 
-	url := UrlGetRequest + username
+	url1 := url.URL{
+		Scheme: SCHEME,
+		Host:   HOST,
+		Path:   PATH1 + username,
+	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url1.String(), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,9 +84,15 @@ func GetReposData(username string, noOfRepos int) ReposInfoArray {
 
 	for i := 1; i <= ((noOfRepos / 100) + 1); i++ {
 
-		url := UrlGetRequest + username + "/repos?type=public&per_page=100&page=" + strconv.Itoa(i)
+		url1 := url.URL{
+			Scheme:   SCHEME,
+			Host:     HOST,
+			Path:     PATH1 + username + PATH2,
+			RawQuery: QUERY + strconv.Itoa(i),
+		}
+
 		client := &http.Client{}
-		req, err := http.NewRequest("GET", url, nil)
+		req, err := http.NewRequest("GET", url1.String(), nil)
 
 		if err != nil {
 			log.Fatal(err)
