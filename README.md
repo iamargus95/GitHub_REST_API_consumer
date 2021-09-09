@@ -17,8 +17,24 @@ In the root of the repository open the terminal and run the `make run` command.
 	
 - `make run`: Executes the binary.
 
-USAGE :
+# USAGE :
 
-`go run main.go [username1] [username2] [username3] .... ` OR 
+## Sequential program execution:
+
+`go run main.go [username1] [username2] [username3] .... ` 
+
+OR 
 
 `./fetchGithubData [username1] [username2] [username3] .... `
+
+## Concurrent program execution:
+
+`go run main.go -con [username1] [username2] [username3] ..... `
+
+OR
+
+`make build` 
+
+& then
+
+`./fetchGithubData -con [username1] [username2] [username3] .....` 
