@@ -13,9 +13,9 @@ func main() {
 	usernames := flag.Args()
 
 	if con {
-		Concurrently(usernames)
+		concurrently(usernames)
 	} else {
-		Sequence(usernames)
+		sequence(usernames)
 	}
 
 }

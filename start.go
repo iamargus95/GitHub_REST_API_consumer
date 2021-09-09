@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func Sequence(usernames []string) {
+func sequence(usernames []string) {
 
 	for _, username := range usernames {
 		userDetails := githubapi.GetUserData(username)
@@ -20,7 +20,7 @@ func Sequence(usernames []string) {
 
 }
 
-func Concurrently(usernames []string) {
+func concurrently(usernames []string) {
 
 	var wg sync.WaitGroup
 	dataToFile := make(chan []string, 1)
