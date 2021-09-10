@@ -3,6 +3,7 @@ package main
 import (
 	"iamargus95/fetchGithubData/githubapi"
 	"iamargus95/fetchGithubData/io"
+	"os"
 	"strings"
 	"sync"
 )
@@ -23,18 +24,21 @@ func sequence(usernames []string) {
 func concurrently(usernames []string) {
 
 	var wg sync.WaitGroup
-	dataToFile := make(chan []string, 1)
+
+	dataToFile := make(chan map[string][]string)
 
 	for _, username := range usernames {
+
 		wg.Add(1)
-		go worker(username, dataToFile, &wg)
+		go fetch(username, dataToFile, &wg)
 		go writeFile(username, dataToFile, &wg)
 	}
+
 	wg.Wait()
 
 }
 
-func worker(username string, dataToFile chan []string, wg *sync.WaitGroup) {
+func fetch(username string, dataToFile chan map[string][]string, wg *sync.WaitGroup) {
 
 	defer wg.Wait()
 	userDetails := githubapi.GetUserData(username)
@@ -42,11 +46,22 @@ func worker(username string, dataToFile chan []string, wg *sync.WaitGroup) {
 	userdata := strings.Split(userDetails.UserData(), ",")
 	repodata := reposDetails.RepoData()
 	accountData := append(userdata, repodata...)
-	dataToFile <- accountData
+
+	dataToChannel := make(map[string][]string)
+	dataToChannel[username] = accountData
+	dataToFile <- dataToChannel
+
 }
 
-func writeFile(username string, dataToFile chan []string, wg *sync.WaitGroup) {
-	defer wg.Done()
+func writeFile(username string, dataToFile chan map[string][]string, wg *sync.WaitGroup) {
+
 	result := <-dataToFile
-	io.WriteToFile(username, result)
+	value := result[username]
+	io.WriteToFile(username, value)
+	i, _ := os.Stat(username + ".txt")
+	if i.Size() != 0 {
+		defer wg.Done()
+	} else {
+		wg.Wait()
+	}
 }
