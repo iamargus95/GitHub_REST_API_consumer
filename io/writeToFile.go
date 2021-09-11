@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func WriteToFile(username string, data []string) {
+func WriteToFile(username string, data []string) error {
 
 	file, err := os.OpenFile(username+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -22,4 +22,6 @@ func WriteToFile(username string, data []string) {
 	}
 
 	datawriter.Flush()
+
+	return err
 }

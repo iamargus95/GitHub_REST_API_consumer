@@ -1,3 +1,3 @@
-module iamargus95/githubassignment
+module iamargus95/fetchGithubData
 
 go 1.17
