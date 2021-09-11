@@ -9,9 +9,9 @@ for a multiple users and store in the filesystem.
 
 # Instructions to run the program :
 
-In the root of the repository open the terminal and run the `make run` command.
+In the root of the repository open the terminal and run the `make build` command.
 
-- `make all`: Builds binary.
+- `make all` or `make build` : Builds binary.
 
 - `make clean`: Removes binary if any.
 	
@@ -21,17 +21,13 @@ In the root of the repository open the terminal and run the `make run` command.
 
 ## Sequential program execution:
 
-`go run main.go [username1] [username2] [username3] .... ` 
+`make build`
 
-OR 
+& then
 
 `./fetchGithubData [username1] [username2] [username3] .... `
 
 ## Concurrent program execution:
-
-`go run main.go -con [username1] [username2] [username3] ..... `
-
-OR
 
 `make build` 
 
