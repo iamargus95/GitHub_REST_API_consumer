@@ -18,23 +18,28 @@ const (
 )
 
 type Userinfo struct {
-	Login        string `json:"Username"`
-	Html_url     string `json:"URL"`
-	Name         string `json:"Name"`
-	Email        string `json:"Email"`
-	Bio          string `json:"Bio"`
-	Public_repos int    `json:"Public_Repos"`
-	Followers    int    `json:"Followers"`
-	Following    int    `json:"Following"`
+	Login        string `json:"login"`
+	Html_url     string `json:"html_url"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Bio          string `json:"bio"`
+	Public_repos int    `json:"public_repos"`
+	Followers    int    `json:"followers"`
+	Following    int    `json:"following"`
 }
 
 type ReposInfoJson struct {
-	Name             string `json:"Repo_Name"`
-	Html_url         string `json:"URL"`
-	Stargazers_count int    `json:"Stars"`
+	Name             string `json:"name"`
+	Html_url         string `json:"html_url"`
+	Stargazers_count int    `json:"stargazers_count"`
 }
 
 type ReposInfoJsonArray []ReposInfoJson
+
+type userCollection struct {
+	accountInfo Userinfo
+	repoInfo    ReposInfoJsonArray
+}
 
 func responseToUserData(data []byte) Userinfo {
 	var userData Userinfo
@@ -111,4 +116,18 @@ func GetReposData(username string, noOfRepos int) ReposInfoJsonArray {
 		result = append(result, searchResult...)     //Append ReposJson after changing each Page query.
 	}
 	return result
+}
+
+func Fetch(username string) userCollection {
+	accountData := GetUserData(username)
+	repoData := GetReposData(username, accountData.Public_repos)
+
+	return (userCollection{accountInfo: accountData, repoInfo: repoData})
+}
+
+func MarshalFetchData(data userCollection) []byte {
+	accountByte, _ := json.MarshalIndent(data.accountInfo, " ", "  ")
+	reposByte, _ := json.MarshalIndent(data.repoInfo, " ", "  ")
+	resultByte := append(accountByte, reposByte...)
+	return resultByte
 }
