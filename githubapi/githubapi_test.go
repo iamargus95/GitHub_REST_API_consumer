@@ -49,20 +49,6 @@ func TestResponseToUserData(t *testing.T) {
 	}
 }
 
-func TestGetUserData(t *testing.T) {
-
-	var nil string
-
-	want := Userinfo{"Ocktokit", "https://github.com/Ocktokit", nil, nil, nil, 0, 0, 0}
-
-	var username string = "ocktokit"
-	data := GetUserData(username)
-
-	if !reflect.DeepEqual(data, want) {
-		t.Fatal("JSON Unmarshal failed.")
-	}
-}
-
 func TestResponseToRepoData(t *testing.T) {
 
 	data := []byte(
@@ -365,7 +351,7 @@ func TestResponseToRepoData(t *testing.T) {
 
 	jsonResponse := responseToRepoData(data)
 
-	want := ReposInfoArray{
+	want := ReposInfoJsonArray{
 		{"GitHub_REST_API_consumer", "https://github.com/iamargus95/GitHub_REST_API_consumer", 0},
 		{"go-grep", "https://github.com/iamargus95/go-grep", 0},
 		{"iamargus95", "https://github.com/iamargus95/iamargus95", 0},
@@ -376,15 +362,16 @@ func TestResponseToRepoData(t *testing.T) {
 	}
 }
 
-func TestUserData(t *testing.T) {
+func TestGetUserData(t *testing.T) {
 
-	data := Userinfo{"Ocktokit", "https://github.com/Ocktokit", "Ocktokit", "one2n.in", "Consulting", 0, 0, 0}
+	var nil string
 
-	want := "Name: Ocktokit,\nUsername: Ocktokit,\nE-mail: one2n.in,\nBio: Consulting,\nPublic Repositories: 0,\nFollowers: 0,\nFollowing: 0"
+	want := Userinfo{"Ocktokit", "https://github.com/Ocktokit", nil, nil, nil, 0, 0, 0}
 
-	actual := data.UserData()
+	var username string = "ocktokit"
+	data := GetUserData(username)
 
-	if actual != want {
+	if !reflect.DeepEqual(data, want) {
 		t.Fatal("JSON Unmarshal failed.")
 	}
 }

@@ -1,21 +1,38 @@
 package main
 
 import (
+	"encoding/json"
 	"iamargus95/fetchGithubData/githubapi"
 	"iamargus95/fetchGithubData/io"
-	"strings"
 	"sync"
 )
+
+type userCollection struct {
+	accountInfo githubapi.Userinfo
+	repoInfo    []githubapi.ReposInfoJson
+}
+
+func fetch(username string) userCollection {
+	accountData := githubapi.GetUserData(username)
+	repoData := githubapi.GetReposData(username, accountData.Public_repos)
+
+	return (userCollection{accountInfo: accountData, repoInfo: repoData})
+}
+
+func marshalFetchData(userCollection) []byte {
+	var data userCollection
+	marshalAccountData, _ := json.MarshalIndent(data.accountInfo, " ", "  ")
+	marshalRepoData, _ := json.MarshalIndent(data.repoInfo, " ", "  ")
+	result := append(marshalAccountData, marshalRepoData...)
+	return result
+}
 
 func sequence(usernames []string) {
 
 	for _, username := range usernames {
-		userDetails := githubapi.GetUserData(username)
-		reposDetails := githubapi.GetReposData(username, userDetails.Public_repos)
-		userdata := strings.Split(userDetails.UserData(), ",")
-		repodata := reposDetails.RepoData()
-		accountData := append(userdata, repodata...)
-		io.WriteToFile(username, accountData)
+		resultJson := fetch(username)
+		resultByte := marshalFetchData(resultJson)
+		io.WriteToFile(username, resultByte)
 	}
 
 }
@@ -24,10 +41,10 @@ func concurrently(usernames []string) {
 
 	var wg sync.WaitGroup
 
-	dataToFile := make(chan map[string][]string)
+	dataToFile := make(chan map[string][]byte)
 
 	for _, username := range usernames {
-		go fetch(username, dataToFile, &wg)
+		go conFetch(username, dataToFile, &wg)
 	}
 
 	wg.Add(len(usernames))
@@ -39,20 +56,17 @@ func concurrently(usernames []string) {
 
 }
 
-func fetch(username string, dataToFile chan map[string][]string, wg *sync.WaitGroup) {
+func conFetch(username string, dataToFile chan map[string][]byte, wg *sync.WaitGroup) {
 
-	userDetails := githubapi.GetUserData(username)
-	reposDetails := githubapi.GetReposData(username, userDetails.Public_repos)
-	userdata := strings.Split(userDetails.UserData(), ",")
-	repodata := reposDetails.RepoData()
-	accountData := append(userdata, repodata...)
+	resultJson := fetch(username)
+	resultByte := marshalFetchData(resultJson)
 
-	dataToChannel := make(map[string][]string)
-	dataToChannel[username] = accountData
+	dataToChannel := make(map[string][]byte)
+	dataToChannel[username] = resultByte
 	dataToFile <- dataToChannel
 }
 
-func writeFile(username string, dataToFile chan map[string][]string, wg *sync.WaitGroup) {
+func writeFile(username string, dataToFile chan map[string][]byte, wg *sync.WaitGroup) {
 
 	result := <-dataToFile
 	value := result[username]

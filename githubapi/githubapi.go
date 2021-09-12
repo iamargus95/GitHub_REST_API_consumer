@@ -18,23 +18,23 @@ const (
 )
 
 type Userinfo struct {
-	Login        string
-	Html_url     string
-	Name         string
-	Email        string
-	Bio          string
-	Public_repos int
-	Followers    int
-	Following    int
+	Login        string `json:"Username"`
+	Html_url     string `json:"URL"`
+	Name         string `json:"Name"`
+	Email        string `json:"Email"`
+	Bio          string `json:"Bio"`
+	Public_repos int    `json:"Public_Repos"`
+	Followers    int    `json:"Followers"`
+	Following    int    `json:"Following"`
 }
 
 type ReposInfoJson struct {
-	Name             string
-	Html_url         string
-	Stargazers_count int
+	Name             string `json:"Repo_Name"`
+	Html_url         string `json:"URL"`
+	Stargazers_count int    `json:"Stars"`
 }
 
-type ReposInfoArray []ReposInfoJson
+type ReposInfoJsonArray []ReposInfoJson
 
 func responseToUserData(data []byte) Userinfo {
 	var userData Userinfo
@@ -42,10 +42,10 @@ func responseToUserData(data []byte) Userinfo {
 	return userData
 }
 
-func responseToRepoData(data []byte) ReposInfoArray {
-	var reposDataArray ReposInfoArray
-	_ = json.Unmarshal(data, &reposDataArray)
-	return reposDataArray
+func responseToRepoData(data []byte) ReposInfoJsonArray {
+	var reposData ReposInfoJsonArray
+	_ = json.Unmarshal(data, &reposData)
+	return reposData
 }
 
 func GetUserData(username string) Userinfo {
@@ -77,10 +77,10 @@ func GetUserData(username string) Userinfo {
 	return searchResult
 }
 
-func GetReposData(username string, noOfRepos int) ReposInfoArray {
+func GetReposData(username string, noOfRepos int) ReposInfoJsonArray {
 
 	var bodyJson []byte
-	var result ReposInfoArray
+	var result ReposInfoJsonArray
 
 	for i := 1; i <= ((noOfRepos / 100) + 1); i++ {
 
@@ -107,35 +107,8 @@ func GetReposData(username string, noOfRepos int) ReposInfoArray {
 		if err != nil {
 			log.Fatal(err)
 		}
-		searchResult := responseToRepoData(bodyJson)
-		result = append(result, searchResult...)
+		searchResult := responseToRepoData(bodyJson) //Unmarshall ReposJson to ReposInfoJsonArray.
+		result = append(result, searchResult...)     //Append ReposJson after changing each Page query.
 	}
-
 	return result
-}
-
-func (data *Userinfo) UserData() string {
-
-	var stringToPrint string
-
-	if data.Name != "" {
-		stringToPrint = "Name: " + data.Name + ",\nUsername: " + data.Login + ",\nE-mail: " + data.Email + ",\nBio: " + data.Bio +
-			",\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
-			",\nFollowing: " + strconv.Itoa(data.Following)
-	}
-	return stringToPrint
-}
-
-func (data ReposInfoArray) RepoData() []string {
-
-	var stringToPrint []string
-
-	for i := 0; i < len(data); i++ {
-
-		stars := data[i].Stargazers_count
-		stringToPrint = append(stringToPrint, "\nRepository No["+strconv.Itoa(i+1)+"]:"+data[i].Name+
-			".\nAvailable at :"+data[i].Html_url+".\nStars Count :"+strconv.Itoa(stars))
-	}
-
-	return stringToPrint
 }
