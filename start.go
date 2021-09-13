@@ -18,33 +18,16 @@ func concurrently(usernames []string) {
 
 	var wg sync.WaitGroup
 
-	dataToFile := make(chan map[string][]byte)
-
 	for _, username := range usernames {
-		go conFetch(username, dataToFile, &wg)
-	}
-
-	wg.Add(len(usernames))
-
-	for _, username := range usernames {
-		go writeFile(username, dataToFile, &wg)
+		wg.Add(1)
+		go worker(username, &wg)
 	}
 	wg.Wait()
 
 }
 
-func conFetch(username string, dataToFile chan map[string][]byte, wg *sync.WaitGroup) {
-
-	resultByte := githubapi.Fetch(username)
-	dataToChannel := make(map[string][]byte)
-	dataToChannel[username] = resultByte
-	dataToFile <- dataToChannel
-}
-
-func writeFile(username string, dataToFile chan map[string][]byte, wg *sync.WaitGroup) {
-
-	result := <-dataToFile
-	value := result[username]
-	io.WriteToFile(username, value)
+func worker(username string, wg *sync.WaitGroup) {
 	defer wg.Done()
+	resultByte := githubapi.Fetch(username)
+	io.WriteToFile(username, resultByte)
 }
