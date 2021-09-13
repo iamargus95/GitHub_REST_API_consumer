@@ -119,20 +119,17 @@ func GetReposData(username string, noOfRepos int) []ReposInfoJson {
 		if err != nil {
 			log.Fatal(err)
 		}
-		searchResult := responseToRepoData(bodyJson) //Unmarshall ReposJson to ReposInfoJsonArray.
+		searchResult := responseToRepoData(bodyJson) //Unmarshall ReposJson to []ReposInfoJson.
 		result = append(result, searchResult...)     //Append ReposJson after changing each Page query.
 	}
 	return result
 }
 
-func Fetch(username string) userCollection {
+func Fetch(username string) []byte {
 	accountData := GetUserData(username)
 	repoData := GetReposData(username, accountData.Public_repos)
+	marshalToStruct := (userCollection{accountData, repoData})
 
-	return (userCollection{accountData, repoData})
-}
-
-func MarshalFetchData(data userCollection) []byte {
-	accountByte, _ := json.MarshalIndent(data, " ", "  ")
-	return accountByte
+	resultByte, _ := json.MarshalIndent(marshalToStruct, "  ", "   ")
+	return resultByte
 }

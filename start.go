@@ -9,8 +9,7 @@ import (
 func sequence(usernames []string) {
 
 	for _, username := range usernames {
-		resultJson := githubapi.Fetch(username)
-		resultByte := githubapi.MarshalFetchData(resultJson)
+		resultByte := githubapi.Fetch(username)
 		io.WriteToFile(username, resultByte)
 	}
 }
@@ -36,9 +35,7 @@ func concurrently(usernames []string) {
 
 func conFetch(username string, dataToFile chan map[string][]byte, wg *sync.WaitGroup) {
 
-	resultJson := githubapi.Fetch(username)
-	resultByte := githubapi.MarshalFetchData(resultJson)
-
+	resultByte := githubapi.Fetch(username)
 	dataToChannel := make(map[string][]byte)
 	dataToChannel[username] = resultByte
 	dataToFile <- dataToChannel
