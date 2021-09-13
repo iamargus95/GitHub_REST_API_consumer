@@ -34,11 +34,18 @@ type ReposInfoJson struct {
 	Stargazers_count int    `json:"stargazers_count"`
 }
 
-type ReposInfoJsonArray []ReposInfoJson
-
 type userCollection struct {
-	accountInfo Userinfo
-	repoInfo    ReposInfoJsonArray
+	AccountInfo struct {
+		Login        string `json:"login"`
+		Html_url     string `json:"html_url"`
+		Name         string `json:"name"`
+		Email        string `json:"email"`
+		Bio          string `json:"bio"`
+		Public_repos int    `json:"public_repos"`
+		Followers    int    `json:"followers"`
+		Following    int    `json:"following"`
+	}
+	Repositories []ReposInfoJson
 }
 
 func responseToUserData(data []byte) Userinfo {
@@ -47,8 +54,8 @@ func responseToUserData(data []byte) Userinfo {
 	return userData
 }
 
-func responseToRepoData(data []byte) ReposInfoJsonArray {
-	var reposData ReposInfoJsonArray
+func responseToRepoData(data []byte) []ReposInfoJson {
+	var reposData []ReposInfoJson
 	_ = json.Unmarshal(data, &reposData)
 	return reposData
 }
@@ -82,10 +89,10 @@ func GetUserData(username string) Userinfo {
 	return searchResult
 }
 
-func GetReposData(username string, noOfRepos int) ReposInfoJsonArray {
+func GetReposData(username string, noOfRepos int) []ReposInfoJson {
 
 	var bodyJson []byte
-	var result ReposInfoJsonArray
+	var result []ReposInfoJson
 
 	for i := 1; i <= ((noOfRepos / 100) + 1); i++ {
 
@@ -122,12 +129,10 @@ func Fetch(username string) userCollection {
 	accountData := GetUserData(username)
 	repoData := GetReposData(username, accountData.Public_repos)
 
-	return (userCollection{accountInfo: accountData, repoInfo: repoData})
+	return (userCollection{accountData, repoData})
 }
 
 func MarshalFetchData(data userCollection) []byte {
-	accountByte, _ := json.MarshalIndent(data.accountInfo, " ", "  ")
-	reposByte, _ := json.MarshalIndent(data.repoInfo, " ", "  ")
-	resultByte := append(accountByte, reposByte...)
-	return resultByte
+	accountByte, _ := json.MarshalIndent(data, " ", "  ")
+	return accountByte
 }
