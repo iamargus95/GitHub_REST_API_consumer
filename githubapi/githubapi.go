@@ -18,23 +18,35 @@ const (
 )
 
 type Userinfo struct {
-	Login        string
-	Html_url     string
-	Name         string
-	Email        string
-	Bio          string
-	Public_repos int
-	Followers    int
-	Following    int
+	Login        string `json:"login"`
+	Html_url     string `json:"html_url"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Bio          string `json:"bio"`
+	Public_repos int    `json:"public_repos"`
+	Followers    int    `json:"followers"`
+	Following    int    `json:"following"`
 }
 
 type ReposInfoJson struct {
-	Name             string
-	Html_url         string
-	Stargazers_count int
+	Name             string `json:"name"`
+	Html_url         string `json:"html_url"`
+	Stargazers_count int    `json:"stargazers_count"`
 }
 
-type ReposInfoArray []ReposInfoJson
+type userCollection struct {
+	AccountInfo struct {
+		Login        string `json:"login"`
+		Html_url     string `json:"html_url"`
+		Name         string `json:"name"`
+		Email        string `json:"email"`
+		Bio          string `json:"bio"`
+		Public_repos int    `json:"public_repos"`
+		Followers    int    `json:"followers"`
+		Following    int    `json:"following"`
+	}
+	Repositories []ReposInfoJson
+}
 
 func responseToUserData(data []byte) Userinfo {
 	var userData Userinfo
@@ -42,10 +54,10 @@ func responseToUserData(data []byte) Userinfo {
 	return userData
 }
 
-func responseToRepoData(data []byte) ReposInfoArray {
-	var reposDataArray ReposInfoArray
-	_ = json.Unmarshal(data, &reposDataArray)
-	return reposDataArray
+func responseToRepoData(data []byte) []ReposInfoJson {
+	var reposData []ReposInfoJson
+	_ = json.Unmarshal(data, &reposData)
+	return reposData
 }
 
 func GetUserData(username string) Userinfo {
@@ -77,10 +89,10 @@ func GetUserData(username string) Userinfo {
 	return searchResult
 }
 
-func GetReposData(username string, noOfRepos int) ReposInfoArray {
+func GetReposData(username string, noOfRepos int) []ReposInfoJson {
 
 	var bodyJson []byte
-	var result ReposInfoArray
+	var result []ReposInfoJson
 
 	for i := 1; i <= ((noOfRepos / 100) + 1); i++ {
 
@@ -107,35 +119,17 @@ func GetReposData(username string, noOfRepos int) ReposInfoArray {
 		if err != nil {
 			log.Fatal(err)
 		}
-		searchResult := responseToRepoData(bodyJson)
-		result = append(result, searchResult...)
+		searchResult := responseToRepoData(bodyJson) //Unmarshall ReposJson to []ReposInfoJson.
+		result = append(result, searchResult...)     //Append ReposJson after changing each Page query.
 	}
-
 	return result
 }
 
-func (data *Userinfo) UserData() string {
+func Fetch(username string) []byte {
+	accountData := GetUserData(username)
+	repoData := GetReposData(username, accountData.Public_repos)
+	marshalToStruct := (userCollection{accountData, repoData})
 
-	var stringToPrint string
-
-	if data.Name != "" {
-		stringToPrint = "Name: " + data.Name + ",\nUsername: " + data.Login + ",\nE-mail: " + data.Email + ",\nBio: " + data.Bio +
-			",\nPublic Repositories: " + strconv.Itoa(data.Public_repos) + ",\nFollowers: " + strconv.Itoa(data.Followers) +
-			",\nFollowing: " + strconv.Itoa(data.Following)
-	}
-	return stringToPrint
-}
-
-func (data ReposInfoArray) RepoData() []string {
-
-	var stringToPrint []string
-
-	for i := 0; i < len(data); i++ {
-
-		stars := data[i].Stargazers_count
-		stringToPrint = append(stringToPrint, "\nRepository No["+strconv.Itoa(i+1)+"]:"+data[i].Name+
-			".\nAvailable at :"+data[i].Html_url+".\nStars Count :"+strconv.Itoa(stars))
-	}
-
-	return stringToPrint
+	resultByte, _ := json.MarshalIndent(marshalToStruct, "  ", "   ")
+	return resultByte
 }
